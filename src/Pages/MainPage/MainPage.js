@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import Web3 from 'web3';
 import abiFront from '../../constants/abis/abiFront.json';
+import { setExchangeRate } from '../../redux/hkOperations';
 import styles from './MainPage.module.css';
 
 const INITIAL_STATE = {
@@ -21,7 +23,8 @@ export default function MainPage() {
 
   const [state, setState] = useState(INITIAL_STATE);
   const [index, setIndex] = useState(0);
-  const [burnAmountConvert, setBurnAmountConvert] = useState(0);
+  const { balance, exchangeRate } = useSelector(state => state.hk);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const BurnAmountConvert = async () => {
@@ -30,11 +33,11 @@ export default function MainPage() {
       const result = await FRONT_CONTRACT.methods
         .getBurnAmountConvert(amountTokens, convertToken)
         .call();
-      console.log('BurnAmountConvert = ',reduceValue(result));
-      setBurnAmountConvert(reduceValue(result));
+      console.log('BurnAmountConvert = ', reduceValue(result));
+      dispatch(setExchangeRate(reduceValue(result)));
     };
     BurnAmountConvert();
-  }, []);
+  }, [dispatch]);
 
   const inputHandler = ({ target }) => {
     const { name, value } = target;
@@ -115,7 +118,7 @@ export default function MainPage() {
   return (
     <>
       <p className={styles.mainBalance}>
-        your balance:<span>12 PI</span>
+        your balance:<span>{balance} PI</span>
       </p>
       <p className={styles.tab}>
         <NavLink
@@ -194,7 +197,7 @@ export default function MainPage() {
         </div>
         <p className={styles.receive}>{`You will receive ${index} PI`}</p>
       </form>
-      <p className={styles.receive}>{`1 PI = ${burnAmountConvert} USDT`}</p>
+      <p className={styles.receive}>{`1 PI = ${exchangeRate} USDT`}</p>
     </>
   );
 }

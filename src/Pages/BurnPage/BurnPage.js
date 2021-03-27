@@ -20,7 +20,7 @@ const INITIAL_STATE_RESIVED = {
 export default function BurnPage() {
   const [state, setState] = useState(INITIAL_STATE);
   const [receivedAmount, setReceivedAmount] = useState(INITIAL_STATE_RESIVED);
-  const balance = useSelector(state => state.hk.balance);
+  const { balance, exchangeRate } = useSelector(state => state.hk);
   const dispatch = useDispatch();
 
   const web3 = new Web3(
@@ -140,7 +140,7 @@ export default function BurnPage() {
             : `${receivedAmount.PUSD} PUSD`}
         </p>
       </div>
-      <p className={styles.receive}>1 PI = 100 USDT</p>
+      <p className={styles.receive}>{`1 PI = ${exchangeRate} USDT`}</p>
     </>
   );
 }

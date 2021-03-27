@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const state = {
   items: [],
   balance: 12,
+  exchangeRate: 1,
 };
 
 export const hkSlice = createSlice({
@@ -35,6 +36,10 @@ export const hkSlice = createSlice({
     addBalance: (state, { payload }) => ({
       ...state,
       balance: payload,
+    }),
+    setExchangeRate: (state, { payload }) => ({
+      ...state,
+      exchangeRate: payload,
     }),
   },
 });
