@@ -23,7 +23,11 @@
 
 .tab span {
   margin-right: 24px;
-  cursor: pointer;
+}
+
+.link {
+  text-decoration: none;
+  color: #764500;
 }
 
 .tab span.active {
@@ -53,6 +57,12 @@
   line-height: 22px;
   text-align: right;
   color: #4f4f4f;
+}
+
+.formWrapper select {
+  margin-bottom: 1px;
+  font-size: 24px;
+  line-height: 30px;
 }
 
 .formWrapper input {

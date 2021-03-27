@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './MainPage.module.css';
 
 const INITIAL_STATE = {
   pbtc: '',
   pusd: '',
+  coin: '',
 };
 
 export default function MainPage() {
@@ -26,7 +28,8 @@ export default function MainPage() {
       </p>
       <p className={styles.tab}>
         <span className={styles.active}>mint</span>
-        <span>burn</span>
+        <Link to="/burn" className={styles.link}>burn</Link>
+        {/* <span>burn</span> */}
       </p>
       <form className={styles.formWrapper} onSubmit={submitHandler}>
         <div className={styles.inputTitle}>
@@ -40,8 +43,16 @@ export default function MainPage() {
           onChange={inputHandler}
         />
         <p className={styles.inputTitle}>
-          PUSD<span className={styles.smallText}>Your balance: 13 PUSD</span>
+          <select name="coin" value={state.coin} onChange={inputHandler}>
+            <option value="PUSD">PUSD</option>
+            <option value="PUAH">PUAH</option>
+            <option value="PEUR">PEUR</option>
+          </select>
+          <span className={styles.smallText}>Your balance: 13 PUSD</span>
         </p>
+        {/* <p className={styles.inputTitle}>
+          PUSD<span className={styles.smallText}>Your balance: 13 PUSD</span>
+        </p> */}
         <div style={{ display: 'flex' }}>
           <input
             type="text"
