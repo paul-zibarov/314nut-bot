@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { addBalance } from '../../redux/hkOperations';
 import styles from './BurnPage.module.css';
@@ -34,15 +35,30 @@ export default function BurnPage() {
         your balance:<span>{balance} PI</span>
       </p>
       <p className={styles.tab}>
-        <span>mint</span>
-        <span className={styles.active}>burn</span>
+        {/* <span>mint</span>
+        <span className={styles.active}>burn</span> */}
+        <NavLink to="/" className={styles.link}>
+          mint
+        </NavLink>
+        <NavLink
+          to="/burn"
+          className={styles.link}
+          activeClassName={styles.activeLink}
+        >
+          burn
+        </NavLink>
       </p>
       <div className={styles.formWrapper}>
         <p className={styles.inputTitle}>
           PI<span className={styles.smallText}>Your balance: 12 PI</span>
         </p>
         <div className={styles.textInputWrapper}>
-          <input type="text" name="pi" value={state.pi} onChange={inputHandler} />
+          <input
+            type="text"
+            name="pi"
+            value={state.pi}
+            onChange={inputHandler}
+          />
           <button onClick={burnHandler}>burn</button>
         </div>
         <div className={styles.radioWrapper}>

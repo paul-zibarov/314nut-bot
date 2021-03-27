@@ -21,12 +21,23 @@
   color: #764500;
 }
 
-.tab span {
+/* .tab span {
   margin-right: 24px;
   cursor: pointer;
 }
 
 .tab span.active {
+  text-decoration: underline;
+  color: #000;
+} */
+
+.link {
+  margin-right: 24px;
+  text-decoration: none;
+  color: #764500;
+}
+
+.activeLink {
   text-decoration: underline;
   color: #000;
 }
