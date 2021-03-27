@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const state = {
   items: [],
+  balance: 12,
 };
 
 export const hkSlice = createSlice({
@@ -30,6 +31,10 @@ export const hkSlice = createSlice({
     deleteHk: (state, { payload }) => ({
       ...state,
       items: [...state.items.filter(item => item.id !== payload)],
+    }),
+    addBalance: (state, { payload }) => ({
+      ...state,
+      balance: payload,
     }),
   },
 });

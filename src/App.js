@@ -1,11 +1,16 @@
+import React from 'react'
+import MainPage from './Pages/MainPage/MainPage'
+import BurnPage from './Pages/BurnPage/BurnPage'
 import './styles/App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <p>Hackathon 3.14нат team.</p>
+      <header>
+        <h2>3.14nut INDEX</h2>
       </header>
+        {/* <MainPage /> */}
+        <BurnPage />
     </div>
   );
 }

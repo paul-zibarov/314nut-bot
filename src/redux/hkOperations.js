@@ -14,5 +14,10 @@ const editHk = data => (dispatch, getState) => {
 const deleteHk = data => (dispatch, getState) => {
   dispatch(hkSlice.actions.deleteHk(data));
 };
+// ---===---
+const addBalance = data => dispatch => {
+  console.log('addBalance Operations: data = ', data);
+  dispatch(hkSlice.actions.addBalance(data));
+};
 
-export { addHk, editHk, deleteHk };
+export { addHk, editHk, deleteHk, addBalance };
