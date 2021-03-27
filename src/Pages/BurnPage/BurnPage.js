@@ -35,8 +35,6 @@ export default function BurnPage() {
         your balance:<span>{balance} PI</span>
       </p>
       <p className={styles.tab}>
-        {/* <span>mint</span>
-        <span className={styles.active}>burn</span> */}
         <NavLink to="/" className={styles.link}>
           mint
         </NavLink>

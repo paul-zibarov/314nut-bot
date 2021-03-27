@@ -21,20 +21,11 @@
   color: #764500;
 }
 
-/* .tab span {
-  margin-right: 24px;
-} */
-
 .link {
   margin-right: 24px;
   text-decoration: none;
   color: #764500;
 }
-
-/* .tab span.active {
-  text-decoration: underline;
-  color: #000;
-} */
 
 .activeLink {
   text-decoration: underline;
@@ -69,6 +60,10 @@
   margin-bottom: 1px;
   font-size: 24px;
   line-height: 30px;
+}
+
+.formWrapper select:focus {
+  outline: none;
 }
 
 .formWrapper input {

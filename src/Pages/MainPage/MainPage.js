@@ -27,10 +27,8 @@ export default function MainPage() {
         your balance:<span>12 PI</span>
       </p>
       <p className={styles.tab}>
-        {/* <span className={styles.active}>mint</span>       */}
         <NavLink to="/" className={styles.link} activeClassName={styles.activeLink}>mint</NavLink>
         <NavLink to="/burn" className={styles.link}>burn</NavLink>
-        {/* <span>burn</span> */}
       </p>
       <form className={styles.formWrapper} onSubmit={submitHandler}>
         <div className={styles.inputTitle}>
