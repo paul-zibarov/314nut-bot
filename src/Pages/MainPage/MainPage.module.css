@@ -78,6 +78,32 @@
   border-radius: 4px;
 }
 
+.radioWrapper {
+  display: flex;
+  width: 516px;
+  justify-content: space-around;
+  margin-bottom: 36px;
+}
+
+label {
+  font-size: 18px;
+  /* line-height: 22px; */
+  display: flex;
+  align-items: center;
+  /* color: #000000; */
+}
+
+.formWrapper input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  margin: 0 8px 0 0;
+  /* background: #fbfbfb;
+  border: 1px solid #b6b6b6;
+  box-sizing: border-box;
+  border-radius: 4px; */
+  cursor: pointer;
+}
+
 .formWrapper button {
   display: flex;
   justify-content: center;
