@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Web3 from 'web3';
 import abiFront from '../../constants/abis/newAbiFront.json';
@@ -21,6 +21,10 @@ export default function MainPage() {
   );
   const FRONT_CONTRACT_KEY = '0xDF3Cf9e652C90fD4d8b25E670EaD4Ce7d464E8CE';
   const FRONT_CONTRACT = new web3.eth.Contract(abiFront, FRONT_CONTRACT_KEY);
+  
+  const history = useHistory();
+  console.log('       ---  history.location = ', history.location)
+if(history.location.search) {console.log('       ---  history.location.search = ', history.location.search)}
 
   const [state, setState] = useState(INITIAL_STATE);
   const [index, setIndex] = useState(0);
@@ -39,6 +43,7 @@ export default function MainPage() {
       dispatch(setExchangeRate(reduceValue(result)));
     };
     BurnAmountConvert();
+    getingTokenBalance();
   }, []);
 
   const setAddress = async () => {
@@ -72,7 +77,8 @@ export default function MainPage() {
     WETH_TOKEN_CONTRACT_KEY,
   );
   const contractAddressWETH = WETH_TOKEN_CONTRACT_KEY;
-  // const addresss = '0xAd6441d8aE550706665918d0A41C8f6A76949928';
+  const addresss2 = '0xAd6441d8aE550706665918d0A41C8f6A76949928';
+  // const addresss = userAddress ? userAddress : addresss2;
   const addresss = userAddress;
   // console.log('userAddress = ', userAddress, typeof(userAddress), userAddress.length);
   // console.log('addresss = ', addresss, typeof(addresss), addresss.length);
@@ -113,13 +119,13 @@ export default function MainPage() {
     return approve;
   };
 
-  checkAllowanceWETH().then(response => {
-    if (response === '0') {
-      approveWETH().then(() => console.log('for WETH - if (response === 0) '));
-    } else {
-      console.log('for WETH - if (response !== 0) ');
-    }
-  });
+  // checkAllowanceWETH().then(response => {
+  //   if (response === '0') {
+  //     approveWETH().then(() => console.log('for WETH - if (response === 0) '));
+  //   } else {
+  //     console.log('for WETH - if (response !== 0) ');
+  //   }
+  // });
   // ------------------------== /TEST approve WETH account ==---
   // ------------------------== TEST approve PBTC account ==---
   const PBTC_TOKEN_CONTRACT_KEY = '0x9b3dCD8AA0fCC5d6dEa920a2DA28309908Fa8A70';
@@ -152,14 +158,38 @@ export default function MainPage() {
     return approve;
   };
 
-  checkAllowancePBTC().then(response => {
-    if (response === '0') {
-      approvePBTC().then(() => console.log('for PBTC - if (response === 0) '));
-    } else {
-      console.log('for PBTC - if (response !== 0) ');
-    }
-  });
+  // checkAllowancePBTC().then(response => {
+  //   if (response === '0') {
+  //     approvePBTC().then(() => console.log('for PBTC - if (response === 0) '));
+  //   } else {
+  //     console.log('for PBTC - if (response !== 0) ');
+  //   }
+  // });
   // ------------------------== /TEST approve PBTC account ==---
+
+  // ------------------------== TEST balanceOf PBTC account ==---
+  const [balanceWETH, setBalanceWETH] = useState(10);
+  const [balancePBTC, setBalancePBTC] = useState(20);
+
+  const getingTokenBalance = async () => {
+    console.log('getTokenBalance is working!!!!!');
+    if (addresss) {
+      const userBalanceWETH = await WETH_TOKEN_CONTRACT.methods
+        .balanceOf(addresss)
+        .call();
+      console.log('WETH userBalance: ', reduceValue(userBalanceWETH));
+      setBalanceWETH(userBalanceWETH);
+    }
+
+    if (addresss) {
+      const userBalancePBTC = await PBTC_TOKEN_CONTRACT.methods
+        .balanceOf(addresss)
+        .call();
+      console.log('PBTC userBalance: ', reduceValue(userBalancePBTC));
+      setBalancePBTC(userBalancePBTC);
+    }
+  };
+  // ------------------------== /TEST balanceOf PBTC account ==---
 
   const inputHandler = ({ target }) => {
     const { name, value } = target;
@@ -175,7 +205,7 @@ export default function MainPage() {
   const convertValue = value =>
     Math.round(+value * 10000).toString() + '00000000000000';
   const reduceValue = value => +value / 1e18;
-// --=-- /helpful functions
+  // --=-- /helpful functions
   const handlePBTC = async () => {
     if (state.sent !== 'ETH') {
       return;
@@ -224,15 +254,19 @@ export default function MainPage() {
     // -------------- allowance(address owner) перевірка-------
     checkAllowanceWETH().then(response => {
       if (response === '0') {
-        approveWETH().then(() => console.log('for WETH - if (response === 0) '));
+        approveWETH().then(() =>
+          console.log('for WETH - if (response === 0) '),
+        );
       } else {
         console.log('for WETH - if (response !== 0) ');
       }
     });
-    
+
     checkAllowancePBTC().then(response => {
       if (response === '0') {
-        approvePBTC().then(() => console.log('for PBTC - if (response === 0) '));
+        approvePBTC().then(() =>
+          console.log('for PBTC - if (response === 0) '),
+        );
       } else {
         console.log('for PBTC - if (response !== 0) ');
       }
@@ -279,7 +313,9 @@ export default function MainPage() {
           style={{ visibility: state.sent === 'ETH' ? 'visible' : 'hidden' }}
         >
           <p>PBTC</p>
-          <p className={styles.smallText}>Your balance: 132 PBTC</p>
+          <p className={styles.smallText}>
+            Your balance: {balancePBTC ? balancePBTC : 0} PBTC
+          </p>
         </div>
         <input
           style={{ visibility: state.sent === 'ETH' ? 'visible' : 'hidden' }}
@@ -299,7 +335,10 @@ export default function MainPage() {
         </p> */}
         <p className={styles.inputTitle}>
           {state.sent === 'ETH' ? 'ETH' : 'PUSD'}
-          <span className={styles.smallText}>Your balance: 13 PUSD</span>
+          {/* <span className={styles.smallText}>{`Your balance: ${balanceWETH} ETH`}</span> */}
+          <span className={styles.smallText}>
+            Your balance: {balanceWETH} ETH
+          </span>
         </p>
         <div style={{ display: 'flex' }}>
           <input
