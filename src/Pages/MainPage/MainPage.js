@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Web3 from 'web3';
-import abiFront from '../../constants/abis/newAbiFront.json';
+import abiFront from '../../constants/abis/abiFront.json';
 import erc20 from '../../constants/abis/erc20.json';
-import { setExchangeRate, setUserAddress } from '../../redux/hkOperations';
+import {  addBalance, setExchangeRate, setUserAddress } from '../../redux/hkOperations';
 import styles from './MainPage.module.css';
 
 const INITIAL_STATE = {
@@ -19,22 +19,37 @@ export default function MainPage() {
     Web3.givenProvider ||
       'https://ropsten.infura.io/v3/5f1cc39aff43406b9cbbab0cc9383c98',
   );
-  const FRONT_CONTRACT_KEY = '0xDF3Cf9e652C90fD4d8b25E670EaD4Ce7d464E8CE';
+  const FRONT_CONTRACT_KEY = '0x299676641493307ABD080d1Ba051e284E44803F0';
   const FRONT_CONTRACT = new web3.eth.Contract(abiFront, FRONT_CONTRACT_KEY);
-  
-  const history = useHistory();
-  console.log('       ---  history.location = ', history.location)
-if(history.location.search) {console.log('       ---  history.location.search = ', history.location.search)}
 
   const [state, setState] = useState(INITIAL_STATE);
   const [index, setIndex] = useState(0);
   const { balance, exchangeRate, userAddress } = useSelector(state => state.hk);
   const dispatch = useDispatch();
 
+  const history = useHistory();
+  // console.log('       ---  history.location = ', history.location);
+  let inData1;
+  if (history.location.search) {
+    console.log(
+      '       ---  history.location.search = ',
+      history.location.search,
+    );
+    const inData = history.location.search.slice(1);
+    console.log('       ---  inData = ', inData);
+    inData1 = inData.split('=');
+    // console.log('       ---  inData1 = ', inData1, inData1[0], inData1[1]);
+  }
+  const pbtcInput = useRef(null);
+  const pusdInput = useRef(null);
+  // useEffect(() => {
+  //   pbtcInput.current.focus();
+  // }, []);
+
   useEffect(() => {
     setAddress();
     const BurnAmountConvert = async () => {
-      const amountTokens = '1000000000000000000';
+      const amountTokens = '10000000000';
       const convertToken = '0xc11090b333e0a8a88cb5d26f1f663cf859fcb861';
       const result = await FRONT_CONTRACT.methods
         .getBurnAmountConvert(amountTokens, convertToken)
@@ -43,12 +58,28 @@ if(history.location.search) {console.log('       ---  history.location.search = 
       dispatch(setExchangeRate(reduceValue(result)));
     };
     BurnAmountConvert();
-    getingTokenBalance();
+    // getingTokenBalance();
+    setInitValue();
   }, []);
 
+  // useEffect(() => {    
+  //   handlePBTC();
+  // }, [state.pusd])
+
+  const setInitValue = () => {
+    if (history.location.search) {
+      console.log(' !!  setInitValue    ---  inData1[0] = ', inData1[0]);
+      const key = inData1[0];
+      setState(prev => ({ ...prev, [key]: inData1[1] }));
+      // ??? ---
+      key === 'pbtc' ? pbtcInput.current.focus() : pusdInput.current.focus();
+      // pbtcInput.current.blur();
+    }
+  };
+
   const setAddress = async () => {
-    try {
-      let address;
+    let address;
+    try {      
       if (typeof window.ethereum !== 'undefined') {
         console.log('init browser web3');
         const web3 = await new Web3(window.ethereum);
@@ -67,6 +98,7 @@ if(history.location.search) {console.log('       ---  history.location.search = 
       console.error('Couldnot init web3');
       console.error(error);
     }
+    getingTokenBalance(address);
   };
   // setAddress();
 
@@ -77,7 +109,7 @@ if(history.location.search) {console.log('       ---  history.location.search = 
     WETH_TOKEN_CONTRACT_KEY,
   );
   const contractAddressWETH = WETH_TOKEN_CONTRACT_KEY;
-  const addresss2 = '0xAd6441d8aE550706665918d0A41C8f6A76949928';
+  // const addresss2 = '0xAd6441d8aE550706665918d0A41C8f6A76949928';
   // const addresss = userAddress ? userAddress : addresss2;
   const addresss = userAddress;
   // console.log('userAddress = ', userAddress, typeof(userAddress), userAddress.length);
@@ -171,23 +203,29 @@ if(history.location.search) {console.log('       ---  history.location.search = 
   const [balanceWETH, setBalanceWETH] = useState(10);
   const [balancePBTC, setBalancePBTC] = useState(20);
 
-  const getingTokenBalance = async () => {
-    console.log('getTokenBalance is working!!!!!');
-    if (addresss) {
+  const getingTokenBalance = async (address1) => {
+    console.log('getTokenBalance is working!!!!!  address1 = ', address1);
+    // if (address1) {
       const userBalanceWETH = await WETH_TOKEN_CONTRACT.methods
-        .balanceOf(addresss)
+        .balanceOf(address1)
         .call();
       console.log('WETH userBalance: ', reduceValue(userBalanceWETH));
       setBalanceWETH(userBalanceWETH);
-    }
+    // }
 
-    if (addresss) {
+    if (address1) {
       const userBalancePBTC = await PBTC_TOKEN_CONTRACT.methods
-        .balanceOf(addresss)
+        .balanceOf(address1)
         .call();
       console.log('PBTC userBalance: ', reduceValue(userBalancePBTC));
       setBalancePBTC(userBalancePBTC);
     }
+
+    const userBalancePI = await FRONT_CONTRACT.methods
+    .balanceOf(address1)
+    .call();
+  console.log('PI userBalance: ', reduceValue(userBalancePI));
+  dispatch(addBalance(userBalancePI));
   };
   // ------------------------== /TEST balanceOf PBTC account ==---
 
@@ -201,11 +239,13 @@ if(history.location.search) {console.log('       ---  history.location.search = 
     console.log('submitHandler !');
   };
   // ------- = Test Contract = -------
-  // --=-- helpful functions
+  // --=--                 !!!       helpful functions
   const convertValue = value =>
     Math.round(+value * 10000).toString() + '00000000000000';
   const reduceValue = value => +value / 1e18;
-  // --=-- /helpful functions
+  const reducePIValue = value => +value / 1e10;
+  const reducePBTCValue = value => +value / 1e8;
+  // --=--                 !!!       /helpful functions
   const handlePBTC = async () => {
     if (state.sent !== 'ETH') {
       return;
@@ -292,7 +332,7 @@ if(history.location.search) {console.log('       ---  history.location.search = 
   return (
     <>
       <p className={styles.mainBalance}>
-        your balance:<span>{balance} PI</span>
+        your balance:<span>{reducePIValue(balance)} PI</span>
       </p>
       <p className={styles.tab}>
         <NavLink
@@ -314,10 +354,11 @@ if(history.location.search) {console.log('       ---  history.location.search = 
         >
           <p>PBTC</p>
           <p className={styles.smallText}>
-            Your balance: {balancePBTC ? balancePBTC : 0} PBTC
+            Your balance: {balancePBTC ? reducePBTCValue(balancePBTC) : 0} PBTC
           </p>
         </div>
         <input
+        ref={pbtcInput}
           style={{ visibility: state.sent === 'ETH' ? 'visible' : 'hidden' }}
           type="text"
           name="pbtc"
@@ -334,14 +375,15 @@ if(history.location.search) {console.log('       ---  history.location.search = 
           <span className={styles.smallText}>Your balance: 13 PUSD</span>
         </p> */}
         <p className={styles.inputTitle}>
-          {state.sent === 'ETH' ? 'ETH' : 'PUSD'}
+          {state.sent === 'ETH' ? 'WETH' : 'PUSD'}
           {/* <span className={styles.smallText}>{`Your balance: ${balanceWETH} ETH`}</span> */}
           <span className={styles.smallText}>
-            Your balance: {balanceWETH} ETH
+            Your balance: {balanceWETH} WETH
           </span>
         </p>
         <div style={{ display: 'flex' }}>
           <input
+          ref={pusdInput}
             type="text"
             name="pusd"
             value={state.pusd}
@@ -361,7 +403,7 @@ if(history.location.search) {console.log('       ---  history.location.search = 
               value="ETH"
               onChange={inputHandler}
             />
-            sent ETH + PBTC
+            sent WETH + PBTC
           </label>
           <label>
             <input
@@ -374,7 +416,7 @@ if(history.location.search) {console.log('       ---  history.location.search = 
             sent PUSD
           </label>
         </div>
-        <p className={styles.receive}>{`You will receive ${index} PI`}</p>
+        <p className={styles.receive}>{`You will receive ${reducePIValue(index)} PI`}</p>
       </form>
       <p className={styles.receive}>{`1 PI = ${exchangeRate} USDT`}</p>
     </>
