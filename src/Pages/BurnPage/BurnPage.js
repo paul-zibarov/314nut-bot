@@ -27,7 +27,7 @@ export default function BurnPage() {
     Web3.givenProvider ||
       'https://ropsten.infura.io/v3/5f1cc39aff43406b9cbbab0cc9383c98',
   );
-  const FRONT_CONTRACT_KEY = '0xDB0f0c98828980413239312207eAaDaD663B2326';
+  const FRONT_CONTRACT_KEY = '0xDF3Cf9e652C90fD4d8b25E670EaD4Ce7d464E8CE';
   const FRONT_CONTRACT = new web3.eth.Contract(abiFront, FRONT_CONTRACT_KEY);
 
   const inputHandler = ({ target }) => {

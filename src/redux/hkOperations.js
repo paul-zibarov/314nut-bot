@@ -25,4 +25,9 @@ const setExchangeRate = data => dispatch => {
   dispatch(hkSlice.actions.setExchangeRate(data));
 };
 
-export { addHk, editHk, deleteHk, addBalance, setExchangeRate };
+const setUserAddress = data => dispatch => {
+  // console.log('setUserAddress Operations: data = ', data);
+  dispatch(hkSlice.actions.setUserAddress(data));
+}; 
+
+export { addHk, editHk, deleteHk, addBalance, setExchangeRate, setUserAddress };

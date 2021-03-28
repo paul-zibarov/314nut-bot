@@ -4,6 +4,7 @@ const state = {
   items: [],
   balance: 12,
   exchangeRate: 1,
+  userAddress: '',
 };
 
 export const hkSlice = createSlice({
@@ -40,6 +41,10 @@ export const hkSlice = createSlice({
     setExchangeRate: (state, { payload }) => ({
       ...state,
       exchangeRate: payload,
+    }),
+    setUserAddress: (state, { payload }) => ({
+      ...state,
+      userAddress: payload,
     }),
   },
 });

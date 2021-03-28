@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Web3 from 'web3';
-import abiFront from '../../constants/abis/abiFront.json';
-import { setExchangeRate } from '../../redux/hkOperations';
+import abiFront from '../../constants/abis/newAbiFront.json';
+import erc20 from '../../constants/abis/erc20.json';
+import { setExchangeRate, setUserAddress } from '../../redux/hkOperations';
 import styles from './MainPage.module.css';
 
 const INITIAL_STATE = {
@@ -18,15 +19,16 @@ export default function MainPage() {
     Web3.givenProvider ||
       'https://ropsten.infura.io/v3/5f1cc39aff43406b9cbbab0cc9383c98',
   );
-  const FRONT_CONTRACT_KEY = '0xDB0f0c98828980413239312207eAaDaD663B2326';
+  const FRONT_CONTRACT_KEY = '0xDF3Cf9e652C90fD4d8b25E670EaD4Ce7d464E8CE';
   const FRONT_CONTRACT = new web3.eth.Contract(abiFront, FRONT_CONTRACT_KEY);
 
   const [state, setState] = useState(INITIAL_STATE);
   const [index, setIndex] = useState(0);
-  const { balance, exchangeRate } = useSelector(state => state.hk);
+  const { balance, exchangeRate, userAddress } = useSelector(state => state.hk);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    setAddress();
     const BurnAmountConvert = async () => {
       const amountTokens = '1000000000000000000';
       const convertToken = '0xc11090b333e0a8a88cb5d26f1f663cf859fcb861';
@@ -37,7 +39,127 @@ export default function MainPage() {
       dispatch(setExchangeRate(reduceValue(result)));
     };
     BurnAmountConvert();
-  }, [dispatch]);
+  }, []);
+
+  const setAddress = async () => {
+    try {
+      let address;
+      if (typeof window.ethereum !== 'undefined') {
+        console.log('init browser web3');
+        const web3 = await new Web3(window.ethereum);
+        window.ethereum.enable().catch(error => {
+          console.log('User denied account access, init infura web3');
+          //this.web3 = new Web3(myConfig.INFURA_API);
+        });
+        address = await web3.eth.getCoinbase();
+        console.log('Account: ' + address);
+      } else {
+        console.error('web3 is not initialized');
+        //this.web3 = await new Web3(myConfig.INFURA_API);
+      }
+      dispatch(setUserAddress('' + address));
+    } catch (error) {
+      console.error('Couldnot init web3');
+      console.error(error);
+    }
+  };
+  // setAddress();
+
+  // ------------------------== TEST approve WETH account ==---
+  const WETH_TOKEN_CONTRACT_KEY = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
+  const WETH_TOKEN_CONTRACT = new web3.eth.Contract(
+    erc20,
+    WETH_TOKEN_CONTRACT_KEY,
+  );
+  const contractAddressWETH = WETH_TOKEN_CONTRACT_KEY;
+  // const addresss = '0xAd6441d8aE550706665918d0A41C8f6A76949928';
+  const addresss = userAddress;
+  // console.log('userAddress = ', userAddress, typeof(userAddress), userAddress.length);
+  // console.log('addresss = ', addresss, typeof(addresss), addresss.length);
+  // if (addresss.toUpperCase() === userAddress.toUpperCase()) {
+  //   console.log('userAddress = addresss!!!!!!!', typeof(userAddress));
+  // } else {
+  //   console.log('userAddress != addresss -> MARAZM!!!');
+  // }
+  // for(let i = 0; i < userAddress.length; i++) {
+  //   if (addresss[i].toUpperCase() === userAddress[i].toUpperCase()) {
+  //     console.log('userAddress = addresss!!!!!!!', addresss[i].toUpperCase(), ' ', userAddress[i].toUpperCase(), ' ', i);
+  //   } else {
+  //     console.log('userAddress != addresss -> MARAZM!!!', addresss[i].toUpperCase(), ' ', userAddress[i].toUpperCase(), ' ', i);
+  //   }
+  // }
+  const amount =
+    '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+  const checkAllowanceWETH = async () => {
+    const allowance = await WETH_TOKEN_CONTRACT.methods
+      .allowance(addresss, contractAddressWETH)
+      .call();
+    return allowance;
+  };
+
+  const approveWETH = async () => {
+    const approve = await WETH_TOKEN_CONTRACT.methods
+      .approve(contractAddressWETH, amount)
+      .send({ from: addresss })
+      .on('transactionHash', function (hash) {
+        console.log('for WETH - .on("transactionHash"');
+      })
+      .on('receipt', function (receipt) {
+        console.log('for WETH - .on("receipt" ');
+      })
+      .on('error', function (error, receipt) {
+        console.log('for WETH - .on("error" ');
+      });
+    return approve;
+  };
+
+  checkAllowanceWETH().then(response => {
+    if (response === '0') {
+      approveWETH().then(() => console.log('for WETH - if (response === 0) '));
+    } else {
+      console.log('for WETH - if (response !== 0) ');
+    }
+  });
+  // ------------------------== /TEST approve WETH account ==---
+  // ------------------------== TEST approve PBTC account ==---
+  const PBTC_TOKEN_CONTRACT_KEY = '0x9b3dCD8AA0fCC5d6dEa920a2DA28309908Fa8A70';
+  const PBTC_TOKEN_CONTRACT = new web3.eth.Contract(
+    erc20,
+    PBTC_TOKEN_CONTRACT_KEY,
+  );
+  const contractAddressPBTC = PBTC_TOKEN_CONTRACT_KEY;
+
+  const checkAllowancePBTC = async () => {
+    const allowance = await PBTC_TOKEN_CONTRACT.methods
+      .allowance(addresss, contractAddressPBTC)
+      .call();
+    return allowance;
+  };
+
+  const approvePBTC = async () => {
+    const approve = await PBTC_TOKEN_CONTRACT.methods
+      .approve(contractAddressPBTC, amount)
+      .send({ from: addresss })
+      .on('transactionHash', function (hash) {
+        console.log('for PBTC - .on("transactionHash"');
+      })
+      .on('receipt', function (receipt) {
+        console.log('for PBTC - .on("receipt" ');
+      })
+      .on('error', function (error, receipt) {
+        console.log('for PBTC - .on("error" ');
+      });
+    return approve;
+  };
+
+  checkAllowancePBTC().then(response => {
+    if (response === '0') {
+      approvePBTC().then(() => console.log('for PBTC - if (response === 0) '));
+    } else {
+      console.log('for PBTC - if (response !== 0) ');
+    }
+  });
+  // ------------------------== /TEST approve PBTC account ==---
 
   const inputHandler = ({ target }) => {
     const { name, value } = target;
@@ -53,7 +175,7 @@ export default function MainPage() {
   const convertValue = value =>
     Math.round(+value * 10000).toString() + '00000000000000';
   const reduceValue = value => +value / 1e18;
-
+// --=-- /helpful functions
   const handlePBTC = async () => {
     if (state.sent !== 'ETH') {
       return;
@@ -67,7 +189,8 @@ export default function MainPage() {
       'indexAmount = ',
       result.indexAmount,
     );
-    setIndex(reduceValue(result.indexAmount));
+    // setIndex(reduceValue(result.indexAmount));
+    setIndex(result.indexAmount);
   };
 
   // --- TEMP! - address ---
@@ -98,6 +221,23 @@ export default function MainPage() {
   const address = '0x9b3dCD8AA0fCC5d6dEa920a2DA28309908Fa8A70';
 
   const mintButtonClick = async () => {
+    // -------------- allowance(address owner) перевірка-------
+    checkAllowanceWETH().then(response => {
+      if (response === '0') {
+        approveWETH().then(() => console.log('for WETH - if (response === 0) '));
+      } else {
+        console.log('for WETH - if (response !== 0) ');
+      }
+    });
+    
+    checkAllowancePBTC().then(response => {
+      if (response === '0') {
+        approvePBTC().then(() => console.log('for PBTC - if (response === 0) '));
+      } else {
+        console.log('for PBTC - if (response !== 0) ');
+      }
+    });
+    // -------------- /allowance(address owner) перевірка-------
     if (state.sent === 'ETH') {
       const result = await FRONT_CONTRACT.methods
         .mint(state.pbtc, state.pusd)
